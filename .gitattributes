@@ -5,6 +5,17 @@
 *.ckpt filter=xet diff=xet merge=xet -text
 *.onnx filter=xet diff=xet merge=xet -text
 *.h5 filter=xet diff=xet merge=xet -text
+
+# Image formats
+*.jpg filter=xet diff=xet merge=xet -text
+*.jpeg filter=xet diff=xet merge=xet -text
+*.png filter=xet diff=xet merge=xet -text
+*.gif filter=xet diff=xet merge=xet -text
+*.bmp filter=xet diff=xet merge=xet -text
+*.tiff filter=xet diff=xet merge=xet -text
+*.webp filter=xet diff=xet merge=xet -text
+*.svg filter=xet diff=xet merge=xet -text
+*.ico filter=xet diff=xet merge=xet -text
 *.pt filter=lfs diff=lfs merge=lfs -text
 *.pth filter=lfs diff=lfs merge=lfs -text
 *.bin filter=lfs diff=lfs merge=lfs -text
