@@ -5,7 +5,6 @@
 *.ckpt filter=xet diff=xet merge=xet -text
 *.onnx filter=xet diff=xet merge=xet -text
 *.h5 filter=xet diff=xet merge=xet -text
-
 # Image formats
 *.jpg filter=xet diff=xet merge=xet -text
 *.jpeg filter=xet diff=xet merge=xet -text
