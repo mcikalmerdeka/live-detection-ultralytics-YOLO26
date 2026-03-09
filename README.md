@@ -1,3 +1,15 @@
+---
+title: YOLO26 Live Object Detection
+emoji: 🎯
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: "6.9.0"
+python_version: "3.12"
+app_file: app.py
+pinned: false
+---
+
 # Live Object Detection with Ultralytics YOLO26
 
 A browser-based object detection application built with [Ultralytics YOLO26](https://docs.ultralytics.com/models/yolo26/) and [Gradio](https://www.gradio.app/). The application supports static image and video inference as well as real-time detection from a webcam feed.
