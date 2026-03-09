@@ -14,6 +14,8 @@ pinned: false
 
 A browser-based object detection application built with [Ultralytics YOLO26](https://docs.ultralytics.com/models/yolo26/) and [Gradio](https://www.gradio.app/). The application supports static image and video inference as well as real-time detection from a webcam feed.
 
+Try the demo here: https://huggingface.co/spaces/mcikalmerdeka/object-detection-yolo26
+
 ## Features
 
 - **Image detection** — upload an image and receive an annotated result with bounding boxes and class labels.
