@@ -1,3 +1,6 @@
+import os
+import shutil
+import subprocess
 import uuid
 
 import cv2
@@ -5,6 +8,33 @@ import gradio as gr
 import numpy as np
 import PIL.Image as Image
 from ultralytics import YOLO
+
+
+def _convert_to_browser_compatible(input_path: str) -> str:
+    """Convert video to H.264 for browser playback using ffmpeg if available."""
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path:
+        return input_path
+    
+    output_path = input_path.replace(".mp4", "_h264.mp4")
+    cmd = [
+        ffmpeg_path,
+        "-i", input_path,
+        "-c:v", "libx264",
+        "-preset", "fast",
+        "-crf", "23",
+        "-c:a", "aac",
+        "-movflags", "+faststart",
+        "-y",
+        output_path
+    ]
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+        # Delete the original mp4v file, keep only the H.264 version
+        os.remove(input_path)
+        return output_path
+    except subprocess.CalledProcessError:
+        return input_path
 
 MODELS = {
     "YOLO26n  (5.3 MB  · fastest)": "models/yolo26n.pt",
@@ -48,41 +78,30 @@ def predict_image(model_name: str, img: Image.Image, conf: float, iou: float):
 
 def predict_video(model_name: str, video_path: str, conf: float, iou: float):
     if video_path is None:
-        return
+        return None
 
     mdl = get_model(model_name)
     cap = cv2.VideoCapture(video_path)
     fps = int(cap.get(cv2.CAP_PROP_FPS)) or 30
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    # Use mp4v codec (most compatible with OpenCV)
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    chunk_size = fps * 2
+    out_name = f"det_{uuid.uuid4().hex}.mp4"
+    writer = cv2.VideoWriter(out_name, fourcc, fps, (w, h))
 
-    def new_writer():
-        name = f"det_{uuid.uuid4().hex}.mp4"
-        return cv2.VideoWriter(name, fourcc, fps, (w, h)), name
-
-    writer, out_name = new_writer()
-    count = 0
     ret, frame = cap.read()
-
     while ret:
         results = mdl.predict(source=frame, conf=conf, iou=iou, imgsz=640, verbose=False)
         writer.write(results[0].plot())
-        count += 1
-
-        if count >= chunk_size:
-            writer.release()
-            yield out_name
-            writer, out_name = new_writer()
-            count = 0
-
         ret, frame = cap.read()
 
     cap.release()
     writer.release()
-    if count > 0:
-        yield out_name
+
+    # Convert to H.264 for browser compatibility if ffmpeg is available
+    return _convert_to_browser_compatible(out_name)
 
 
 def predict_webcam(model_name: str, frame: np.ndarray, conf: float, iou: float):
@@ -188,14 +207,21 @@ with gr.Blocks(title="YOLO26 Live Object Detection") as app:
                         with gr.Column():
                             vid_out = gr.Video(
                                 label="Detection Result",
-                                streaming=True,
-                                autoplay=True,
                             )
 
                     vid_btn.click(
                         fn=predict_video,
                         inputs=[model_state, vid_in, vid_conf, vid_iou],
                         outputs=vid_out,
+                    )
+
+                    gr.Examples(
+                        examples=[
+                            ["samples/test_video.mp4"],
+                            ["samples/test_video_2.mp4"],
+                        ],
+                        inputs=vid_in,
+                        label="Sample Videos",
                     )
 
         # ── Tab 2 · Live Webcam ───────────────────────────────────────────────
