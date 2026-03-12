@@ -171,6 +171,7 @@ with gr.Blocks(title="YOLO26 Live Object Detection") as app:
                             ["samples/test_image_2.jpg"],
                             ["samples/test_image_3.jpg"],
                             ["samples/test_image_4.jpg"],
+                            ["samples/test_image_5.jpg"],
                         ],
                         inputs=img_in,
                         label="Sample Images",
